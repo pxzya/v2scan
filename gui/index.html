@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>V2Scan</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="backdrop"></div>
+
+  <div class="resize-handle edge-top"    data-edge="top"></div>
+  <div class="resize-handle edge-bottom" data-edge="bottom"></div>
+  <div class="resize-handle edge-left"   data-edge="left"></div>
+  <div class="resize-handle edge-right"  data-edge="right"></div>
+  <div class="resize-handle corner-tl"   data-edge="topleft"></div>
+  <div class="resize-handle corner-tr"   data-edge="topright"></div>
+  <div class="resize-handle corner-bl"   data-edge="bottomleft"></div>
+  <div class="resize-handle corner-br"   data-edge="bottomright"></div>
+
+  <div class="titlebar" id="titlebar">
+    <div class="window-controls">
+      <button class="wc-btn wc-close" id="btnClose" title="Close">
+        <svg viewBox="0 0 10 10" width="9" height="9"><path stroke="currentColor" stroke-width="1.3" stroke-linecap="round" d="M1 1l8 8M9 1L1 9"/></svg>
+      </button>
+      <button class="wc-btn wc-min" id="btnMin" title="Minimize">
+        <svg viewBox="0 0 10 10" width="9" height="9"><path stroke="currentColor" stroke-width="1.3" stroke-linecap="round" d="M1 5h8"/></svg>
+      </button>
+      <button class="wc-btn wc-max" id="btnMax" title="Maximize">
+        <svg viewBox="0 0 10 10" width="9" height="9"><rect x="1.3" y="1.3" width="7.4" height="7.4" rx="1" stroke="currentColor" stroke-width="1.1" fill="none"/></svg>
+      </button>
+    </div>
+    <div class="titlebar-title">V2Scan</div>
+    <button class="appearance-toggle" id="btnAppearance" title="Toggle appearance"></button>
+  </div>
+
+  <div class="app-shell">
+
+    <aside class="sidebar glass">
+
+      <div class="segmented" id="sourceTabs">
+        <button class="segment active" data-source="channel">Channel</button>
+        <button class="segment" data-source="subscription">Subscription</button>
+      </div>
+
+      <div class="sidebar-section" id="channelSection">
+        <label class="field-label">Telegram Channel</label>
+        <div class="input-wrap">
+          <span class="input-prefix">@</span>
+          <input id="channelInput" type="text" placeholder="channel_username" spellcheck="false" autocomplete="off" />
+          <button class="icon-btn" id="btnOpenChannels" title="Saved channels">
+            <svg viewBox="0 0 24 24" width="15" height="15"><path fill="currentColor" d="M4 6h16v2H4zm0 5h16v2H4zm0 5h10v2H4z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="sidebar-section" id="subscriptionSection" style="display:none;">
+        <label class="field-label">Subscription URL</label>
+        <div class="input-wrap">
+          <input id="subscriptionInput" type="text" placeholder="https://…/sub" spellcheck="false" autocomplete="off" />
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="toggle-row">
+          <label class="field-label" for="proxiesOnlyToggle">Telegram proxies only</label>
+          <label class="switch">
+            <input type="checkbox" id="proxiesOnlyToggle" />
+            <span class="switch-track"><span class="switch-thumb"></span></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <label class="field-label">Discovery</label>
+        <div class="segmented" id="discoveryTabs">
+          <button class="segment active" data-mode="direct">Direct</button>
+          <button class="segment" data-mode="proxy">Proxy</button>
+        </div>
+        <div class="input-wrap" id="discoveryProxyWrap" style="display:none; margin-top:8px;">
+          <input id="discoveryProxyInput" type="text" placeholder="Telegram SOCKS link or socks5://host:port" spellcheck="false" autocomplete="off" />
+        </div>
+        <p class="field-note" id="discoveryNote"></p>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="field-label-row">
+          <label class="field-label">Items per scan</label>
+          <span class="value-pill" id="limitValue">100</span>
+        </div>
+        <input id="limitSlider" type="range" min="10" max="1000" step="10" value="100" class="slider" />
+      </div>
+
+      <div class="sidebar-section">
+        <div class="toggle-row">
+          <label class="field-label" for="pingToggle">Ping threshold</label>
+          <label class="switch">
+            <input type="checkbox" id="pingToggle" />
+            <span class="switch-track"><span class="switch-thumb"></span></span>
+          </label>
+        </div>
+        <div class="input-wrap" id="pingInputWrap" style="opacity:0.35; pointer-events:none;">
+          <input id="pingInput" type="number" min="0" step="50" value="500" />
+          <span class="input-suffix">ms max</span>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <label class="field-label">Test via IP <span class="field-hint">(optional)</span></label>
+        <div class="input-wrap">
+          <input id="ipInput" type="text" placeholder="Use each item's own host" spellcheck="false" autocomplete="off" />
+        </div>
+      </div>
+
+      <div class="sidebar-spacer"></div>
+
+      <button id="scanBtn" class="primary-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" class="btn-icon"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 5L20.49 19l-5-5zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14z"/></svg>
+        <span id="scanBtnLabel">Start Scan</span>
+      </button>
+
+      <div class="sidebar-footer">
+        <span id="statusText" class="status-text">Idle</span>
+      </div>
+    </aside>
+
+    <main class="content">
+
+      <div class="stats-bar glass">
+        <div class="stat">
+          <span class="stat-value" id="statFound">0</span>
+          <span class="stat-label">Found</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-value stat-good" id="statAlive">0</span>
+          <span class="stat-label">Reachable</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-value" id="statTested">0</span>
+          <span class="stat-label">Tested</span>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+        <button class="ghost-btn" id="btnExport" title="Export reachable configs as a .txt file">Export</button>
+      </div>
+
+      <div class="results-card glass">
+        <div class="results-header">
+          <span></span>
+          <span>Protocol</span>
+          <span>Host</span>
+          <span>Remark</span>
+          <span class="col-ping">Ping ↑</span>
+          <span class="col-copy"></span>
+        </div>
+        <div class="results-list" id="resultsList">
+          <div class="empty-state" id="emptyState">
+            <svg viewBox="0 0 24 24" width="44" height="44"><path fill="currentColor" opacity="0.35" d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 15h-2v-2h2zm0-4h-2V7h2z"/></svg>
+            <p>Enter a channel and start a scan</p>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <div class="modal-overlay" id="channelModalOverlay" style="display:none;">
+    <div class="modal glass">
+      <div class="modal-header">
+        <h3>Saved Channels</h3>
+        <button class="icon-btn" id="btnCloseChannelModal">
+          <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M18.3 5.71 12 12l6.3 6.29-1.41 1.42L10.59 13.4l-6.3 6.3-1.41-1.41L9.17 12 2.88 5.71 4.3 4.29l6.29 6.3 6.3-6.3z"/></svg>
+        </button>
+      </div>
+      <div class="modal-add-row">
+        <input id="newChannelUsername" type="text" placeholder="username" spellcheck="false" autocomplete="off" />
+        <input id="newChannelLabel" type="text" placeholder="Label (optional)" spellcheck="false" autocomplete="off" />
+        <button class="primary-btn small" id="btnAddChannel">Add</button>
+      </div>
+      <div class="channel-list" id="channelList"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
